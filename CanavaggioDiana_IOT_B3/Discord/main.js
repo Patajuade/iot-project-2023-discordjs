@@ -24,6 +24,7 @@ app.listen(port,()=>{
 //comportement quand le client fait get
 app.get("/roll",(req,res)=>{
 	const {result} = req.query; //récupère result dans l'URL : localhost:8080/roll?result=5
+	console.log("result in query : ",result);
 	if(result>0 && result<=20){
 		const file = getAttachement(result);
 		const thumbnail = getThumbnail();
