@@ -44,9 +44,9 @@ app.post("/config",(req,res)=>{
 			message:"Action non autorisée :("
 		});
 	}
-	diceConfig.maxNumber = req.body.newValue; //récupère result dans l'URL : localhost:8080/roll?result=5
+	diceConfig.maxNumber = req.body.newValue;
 	return res.status(200).json({
-		message:value
+		message:req.body.newValue
 	});
 });
 
