@@ -13,7 +13,7 @@ const {message,getAttachement,getThumbnail} = require('./commands/eventDecoy');
 const express = require("express");
 const { json } = require('express/lib/response');
 const app = express();
-const port = 80;
+const port = 8080;
 app.use(express.json());
 app.use(express.urlencoded({extended:true}));
 app.listen(port,()=>{
