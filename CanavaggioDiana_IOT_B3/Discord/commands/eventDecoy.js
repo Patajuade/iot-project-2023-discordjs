@@ -31,6 +31,7 @@ const message = (userInteractingName, userInteractingAvatar)=>new MessageEmbed()
     .setTimestamp()
 
 module.exports = {
+    getRandomArbitrary,
     getAttachement,
     getThumbnail,
     message,

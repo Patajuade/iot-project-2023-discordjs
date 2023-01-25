@@ -7,7 +7,7 @@
 const fs = require('node:fs'); //fs is Node's native file sustem module
 const { Client, Collection ,Intents } = require('discord.js');
 const { token } = require('./config.json');
-const {message,getAttachement,getThumbnail} = require('./commands/eventDecoy');
+const {message,getAttachement,getThumbnail, getRandomArbitrary} = require('./commands/eventDecoy');
 
 //REST API part
 const express = require("express");
@@ -20,23 +20,33 @@ app.listen(port,()=>{
 	console.log("Express API is ready");
 });
 
+const diceConfig = {
+	maxNumber: 20
+};
+
 //localhost:8080/roll
 //comportement quand le client fait get
 app.get("/roll",(req,res)=>{
-	const {result} = req.query; //récupère result dans l'URL : localhost:8080/roll?result=5
-	console.log("result in query : ",result);
-	if(result>0 && result<=20){
-		const file = getAttachement(result);
-		const thumbnail = getThumbnail();
-	
-		const chan = client.channels.cache.find(c=>c.name==="général");
-		chan.send({ embeds: [message("La main", "https://cdn.mycrazystuff.com/10416/mini-main-pour-doigt.jpg")],files: [file,thumbnail] });
-		return res.status(200).json({
-			message:result
+	const value = getRandomArbitrary(1, diceConfig.maxNumber);
+	const file = getAttachement(value);
+	const thumbnail = getThumbnail();
+
+	const chan = client.channels.cache.find(c=>c.name==="général");
+	chan.send({ embeds: [message("La main", "https://cdn.mycrazystuff.com/10416/mini-main-pour-doigt.jpg")],files: [file,thumbnail] });
+	return res.status(200).json({
+		message:value
+	});
+});
+
+app.post("/config",(req,res)=>{
+	if(req.body.newValue === undefined || req.body.newValue < 1 || req.body.newValue > 20){
+		return res.status(402).json({
+			message:"Action non autorisée :("
 		});
 	}
-	return res.status(402).json({
-		message:"Action non autorisée :("
+	diceConfig.maxNumber = req.body.newValue; //récupère result dans l'URL : localhost:8080/roll?result=5
+	return res.status(200).json({
+		message:value
 	});
 });
 
