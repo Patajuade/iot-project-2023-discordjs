@@ -9,6 +9,9 @@ on:
       - main
   workflow_dispatch:
 
+defaults:
+  run:
+    working-directory: CanavaggioDiana_IOT_B3/dice-config
 jobs:
   build:
     runs-on: ubuntu-latest
