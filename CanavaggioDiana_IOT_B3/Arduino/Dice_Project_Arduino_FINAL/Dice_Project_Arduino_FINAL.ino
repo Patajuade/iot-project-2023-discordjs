@@ -25,7 +25,8 @@ const int tiltPin = 7;
 // how many pixels, which pin to use to send signals.
 Adafruit_NeoPixel pixels(NUMPIXELS, PIN, NEO_GRB + NEO_KHZ800);
 // nodeMCU
-SoftwareSerial nodemcu(5, 3);
+SoftwareSerial statusNode(5, 3);
+SoftwareSerial resultNode(12, 13);
 
 int delayVal = 5000; // Delay in milliseconds between changing displayed number
 int randNum;         // Variable to store the random number
@@ -56,21 +57,23 @@ int num20[] = {0, 1, 2, 5, 6, 7, 8, 10, 15, 16, 21, 23, 24, 26, 29, 30, 31, 34, 
 // Define sizes of arrays used above
 int pixelCountDefault = 38;
 int pixelCount = 64;
+bool showMatrix;
 
 void setup()
 {
   // NodeMCU setup
-  // Serial.begin(115200);
-  nodemcu.begin(115200);
+  Serial.begin(115200);
+  statusNode.begin(115200);
+  resultNode.begin(115200);
   delay(1000);
-  // Serial.println("Program started");
+  //Serial.println("Program started");
 
   // Matrix setup
   pixels.begin();          // INITIALIZE NeoPixel strip object (REQUIRED)
   pinMode(tiltPin, INPUT); // INITIALIZE tilts pin
   pixels.show();
 }
-
+bool isNumberSend = false;
 void sendNumberToNodeMCU(int num)
 {
   StaticJsonBuffer<1000> jsonBuffer;
@@ -80,26 +83,42 @@ void sendNumberToNodeMCU(int num)
   // Serial.println(num);
 
   // Assign collected data to JSON Object
-  data["result"] = num;
+  data["status"] = num;//0 = wait; -1 = get;
 
   // Send data to NodeMCU
-  data.printTo(nodemcu);
+  data.printTo(statusNode);
   jsonBuffer.clear();
+  isNumberSend = true;
 }
 
+int getResult(){
+  StaticJsonBuffer<1000> jsonBuffer;
+  JsonObject& data = jsonBuffer.parseObject(resultNode);
+  
+  if (data == JsonObject::invalid()) {
+    jsonBuffer.clear();
+  }
+
+  int result = data["result"];
+  Serial.print("getResult");
+  Serial.println(result);
+  return result;
+}
 void loop()
 {
-
   // loop listening to the tilt's state
   int tiltSensorValue = digitalRead(tiltPin);
   delay(100);
-  randNum = random(1, 21);
-  
-  if (tiltSensorValue == LOW)
+
+  sendNumberToNodeMCU(0);
+  while (tiltSensorValue == LOW && showMatrix == false)
   {
-   
-    sendNumberToNodeMCU(randNum);
-    switch (randNum)
+    showMatrix = true;
+    sendNumberToNodeMCU(-1);
+    getResult();
+  }
+  if(showMatrix == true){
+    switch (5)
     {
     case 1:
       draw(num1, sizeof num1 / sizeof num1[0]);
@@ -172,6 +191,7 @@ void loop()
       pixels.show();
     }
   }
+  showMatrix = false;
 }
 
 void draw(int tab[], int num)
