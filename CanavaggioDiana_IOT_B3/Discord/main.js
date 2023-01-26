@@ -9,11 +9,13 @@ const { Client, Collection ,Intents } = require('discord.js');
 const { token } = require('./config.json');
 const {message,getAttachement,getThumbnail, getRandomArbitrary} = require('./commands/eventDecoy');
 
+const cors = require("cors")
 //REST API part
 const express = require("express");
 const { json } = require('express/lib/response');
 const app = express();
 const port = 8080;
+app.use(cors())
 app.use(express.json());
 app.use(express.urlencoded({extended:true}));
 app.listen(port,()=>{
